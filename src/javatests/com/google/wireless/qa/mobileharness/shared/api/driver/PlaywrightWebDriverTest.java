@@ -199,8 +199,10 @@ public class PlaywrightWebDriverTest {
     executedCommand.getStderrLineCallback().get().onLine("Mock stderr line");
 
     // Verify logs were called with the mock line contents
-    verify(loggingApi, Mockito.atLeastOnce()).log(eq("[Playwright] %s"), eq("Mock stdout line"));
-    verify(loggingApi, Mockito.atLeastOnce()).log(eq("[Playwright] %s"), eq("Mock stderr line"));
+    verify(loggingApi, Mockito.atLeastOnce())
+        .log(eq("%s %s"), eq("[Playwright]"), eq("Mock stdout line"));
+    verify(loggingApi, Mockito.atLeastOnce())
+        .log(eq("%s %s"), eq("[Playwright]"), eq("Mock stderr line"));
 
     // Verify dependencies were called
     verify(localFileUtil).grantFileOrDirFullAccess(testFile.getAbsolutePath());
