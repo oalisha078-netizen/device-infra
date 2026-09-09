@@ -363,6 +363,9 @@ public class ExecTestServiceImpl {
     testResult.causeProto().ifPresent(testProto::setResultCause);
     testProto.setLog(testInfo.log().get(0));
     testInfo.warnings().getAll().forEach(testProto::addWarning);
+    testInfo.findings().getAll().stream()
+        .map(finding -> finding.toProto())
+        .forEach(testProto::addFinding);
     testProto.addAllProperty(StrPairUtil.convertMapToList(testInfo.properties().getAll()));
     return testProto.build();
   }

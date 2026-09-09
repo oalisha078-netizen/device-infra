@@ -89,6 +89,12 @@ public class LabResponseProtoGenerator {
     // Test warnings.
     builder.addAllTestWarningExceptionDetail(testInfo.warnings().getAll());
 
+    // Test findings.
+    builder.addAllFinding(
+        testInfo.findings().getAll().stream()
+            .map(finding -> finding.toProto())
+            .collect(toImmutableList()));
+
     // Generated files.
     if (testInfo.hasGenFileDir()) {
       String genFileDir = testInfo.getGenFileDir();
@@ -105,10 +111,11 @@ public class LabResponseProtoGenerator {
         builder.setGenFileDir(genFileDir);
       }
       logger.atInfo().log(
-          "Get gen data of test %s: %d properties, %d warnings, %d gen files",
+          "Get gen data of test %s: %d properties, %d warnings, %d findings, %d gen files",
           testId,
           builder.getTestPropertyCount(),
           builder.getTestWarningExceptionDetailCount(),
+          builder.getFindingCount(),
           builder.getGenFileRelatedPathCount());
     }
 

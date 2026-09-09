@@ -340,5 +340,35 @@ public class LabRpcProtoConverter {
           .alsoTo(logger)
           .log("No test warnings on Lab Server side%s", subTestLogPostfix);
     }
+    // Copies the lab server side findings.
+    if (resp.getFindingCount() > 0) {
+      testInfo
+          .log()
+          .atInfo()
+          .alsoTo(logger)
+          .log("Lab Server side finding count: %d", resp.getFindingCount());
+      resp.getFindingList()
+          .forEach(
+              finding -> {
+                String errorMessage = finding.getDetail().getSummary().getMessage();
+                testInfo
+                    .findings()
+                    .add(
+                        finding.toBuilder()
+                            .setDetail(
+                                finding.getDetail().toBuilder()
+                                    .setSummary(
+                                        finding.getDetail().getSummary().toBuilder()
+                                            .setMessage("(L)" + errorMessage)))
+                            .build());
+              });
+    } else {
+      testInfo
+          .getRootTest()
+          .log()
+          .atInfo()
+          .alsoTo(logger)
+          .log("No findings on Lab Server side%s", subTestLogPostfix);
+    }
   }
 }

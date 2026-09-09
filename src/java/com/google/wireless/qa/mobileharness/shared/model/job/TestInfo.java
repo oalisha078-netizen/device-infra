@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
 import com.google.devtools.mobileharness.api.model.error.BasicErrorId;
 import com.google.devtools.mobileharness.api.model.error.MobileHarnessException;
+import com.google.devtools.mobileharness.api.model.job.out.Findings;
 import com.google.devtools.mobileharness.api.model.job.out.Result;
 import com.google.devtools.mobileharness.api.model.job.out.Warnings;
 import com.google.devtools.mobileharness.infra.controller.test.model.TestExecutionUnit;
@@ -73,8 +74,15 @@ public class TestInfo extends TestScheduleUnit implements Cloneable {
   /** Test properties. */
   private final Properties properties;
 
-  /** Test warnings. */
-  private final Warnings warnings;
+  /**
+   * Test warnings.
+   *
+   * @deprecated Use {@link Findings} instead.
+   */
+  @Deprecated private final Warnings warnings;
+
+  /** Test findings. */
+  private final Findings findings;
 
   /** Utilities for local file operations. */
   private final LocalFileUtil fileUtil;
@@ -99,6 +107,34 @@ public class TestInfo extends TestScheduleUnit implements Cloneable {
       Log log,
       Properties properties,
       Warnings warnings) {
+    this(
+        testLocator,
+        timing,
+        jobInfo,
+        parentTest,
+        files,
+        remoteGenFiles,
+        status,
+        result,
+        log,
+        properties,
+        warnings,
+        new Findings(log));
+  }
+
+  TestInfo(
+      TestLocator testLocator,
+      Timing timing,
+      JobInfo jobInfo,
+      TestInfo parentTest,
+      Files files,
+      RemoteFiles remoteGenFiles,
+      Status status,
+      Result result,
+      Log log,
+      Properties properties,
+      Warnings warnings,
+      Findings findings) {
     super(testLocator, timing);
     this.jobInfo = jobInfo;
     this.parentTest = parentTest;
@@ -111,6 +147,7 @@ public class TestInfo extends TestScheduleUnit implements Cloneable {
     this.log = log;
     this.properties = properties;
     this.warnings = warnings;
+    this.findings = findings;
     testExecutionUnitSupplier =
         Suppliers.memoize(
             () ->
@@ -150,6 +187,7 @@ public class TestInfo extends TestScheduleUnit implements Cloneable {
                             "j_" + jobInfo.locator().getId(),
                             "test_" + locator().getId())));
     warnings = new Warnings(log, timing().toNewTiming());
+    findings = new Findings(log);
     properties = new Properties(timing());
     result = new Result(timing().toNewTiming(), jobInfo.params().toNewParams());
     status = new Status(timing());
@@ -277,9 +315,19 @@ public class TestInfo extends TestScheduleUnit implements Cloneable {
     return properties;
   }
 
-  /** Warnings that occur during execution. */
+  /**
+   * Warnings that occur during execution.
+   *
+   * @deprecated Use {@link Findings} instead.
+   */
+  @Deprecated
   public Warnings warnings() {
     return warnings;
+  }
+
+  /** Findings that occur during execution. */
+  public Findings findings() {
+    return findings;
   }
 
   /**

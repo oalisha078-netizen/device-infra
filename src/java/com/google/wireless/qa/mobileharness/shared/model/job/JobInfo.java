@@ -25,6 +25,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.flogger.FluentLogger;
 import com.google.devtools.mobileharness.api.model.error.BasicErrorId;
 import com.google.devtools.mobileharness.api.model.error.MobileHarnessException;
+import com.google.devtools.mobileharness.api.model.job.out.Findings;
 import com.google.devtools.mobileharness.api.model.job.out.Result;
 import com.google.devtools.mobileharness.api.model.job.out.Warnings;
 import com.google.devtools.mobileharness.api.model.proto.Job.DeviceRequirement;
@@ -268,8 +269,15 @@ public class JobInfo extends JobScheduleUnit {
   /** Job properties. */
   private final Properties properties;
 
-  /** Job warnings. */
-  private final Warnings warnings;
+  /**
+   * Job warnings.
+   *
+   * @deprecated Use {@link Findings} instead.
+   */
+  @Deprecated private final Warnings warnings;
+
+  /** Job findings. */
+  private final Findings findings;
 
   /** Job spec which contains the structured parameters and files. */
   private final ProtoJobSpec spec;
@@ -306,6 +314,47 @@ public class JobInfo extends JobScheduleUnit {
       Properties properties,
       Warnings warnings,
       JobSpec jobSpec) {
+    this(
+        locator,
+        jobUser,
+        type,
+        setting,
+        timing,
+        params,
+        files,
+        scopedSpecs,
+        subDeviceSpecs,
+        remoteGenFiles,
+        remoteRunFiles,
+        status,
+        result,
+        log,
+        properties,
+        warnings,
+        new Findings(log),
+        jobSpec);
+  }
+
+  JobInfo(
+      JobLocator locator,
+      JobUser jobUser,
+      JobType type,
+      JobSetting setting,
+      Timing timing,
+      Params params,
+      Files files,
+      ScopedSpecs scopedSpecs,
+      SubDeviceSpecs subDeviceSpecs,
+      RemoteFiles remoteGenFiles,
+      RemoteFiles remoteRunFiles,
+      Status status,
+      Result result,
+      Log log,
+      Properties properties,
+      Warnings warnings,
+      Findings findings,
+      JobSpec jobSpec) {
+
     super(locator, jobUser, type, setting, timing, params, scopedSpecs, subDeviceSpecs);
     this.files = files;
     this.remoteGenFiles = remoteGenFiles;
@@ -315,6 +364,7 @@ public class JobInfo extends JobScheduleUnit {
     this.log = log;
     this.properties = properties;
     this.warnings = warnings;
+    this.findings = findings;
     this.spec = new ProtoJobSpec(jobSpec);
     this.tests = new TestInfos(this);
     this.jobExecutionUnitSupplier =
@@ -363,6 +413,7 @@ public class JobInfo extends JobScheduleUnit {
     log = new Log(timing());
     properties = new Properties(timing());
     warnings = new Warnings(log, timing().toNewTiming());
+    findings = new Findings(log);
     spec = new ProtoJobSpec();
     tests = new TestInfos(this);
 
@@ -475,9 +526,19 @@ public class JobInfo extends JobScheduleUnit {
     return properties;
   }
 
-  /** Warnings that occur during execution. */
+  /**
+   * Warnings that occur during execution.
+   *
+   * @deprecated Use {@link Findings} instead.
+   */
+  @Deprecated
   public Warnings warnings() {
     return warnings;
+  }
+
+  /** Findings that occur during execution. */
+  public Findings findings() {
+    return findings;
   }
 
   /** Timer of the job which starts when the job starts and expires when the job expires. */
