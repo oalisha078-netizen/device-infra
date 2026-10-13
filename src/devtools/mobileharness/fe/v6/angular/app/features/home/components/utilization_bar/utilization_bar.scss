@@ -74,7 +74,8 @@
 
   &.legend-floating {
     position: absolute;
-    left: var(--idle-left, 0);
+    // Clamped so the IDLE legend stays clear of the BUSY and Others legends at mid widths.
+    left: min(max(var(--idle-left, 0), 160px), calc(100% - 216px));
     transition: left 0.5s ease;
   }
 
